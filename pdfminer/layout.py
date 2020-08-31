@@ -1,5 +1,7 @@
 import heapq
 import logging
+from typing import NamedTuple
+from numbers import Real
 
 from .utils import INF
 from .utils import Plane
@@ -29,7 +31,17 @@ class IndexAssigner:
         return
 
 
-class LAParams:
+class _LAParams(NamedTuple):
+    line_overlap: float = 0.5
+    char_margin: float = 2.0
+    line_margin: float = 0.5
+    word_margin: float = 0.1
+    boxes_flow: float = 0.5
+    detect_vertical: bool = False
+    all_texts: bool = False
+
+
+class LAParams(_LAParams):
     """Parameters for layout analysis
 
     :param line_overlap: If two characters have more overlap than this they
@@ -57,40 +69,15 @@ class LAParams:
         figures.
     """
 
-    def __init__(self,
-                 line_overlap=0.5,
-                 char_margin=2.0,
-                 line_margin=0.5,
-                 word_margin=0.1,
-                 boxes_flow=0.5,
-                 detect_vertical=False,
-                 all_texts=False):
-        self.line_overlap = line_overlap
-        self.char_margin = char_margin
-        self.line_margin = line_margin
-        self.word_margin = word_margin
-        self.boxes_flow = boxes_flow
-        self.detect_vertical = detect_vertical
-        self.all_texts = all_texts
+    def __new__(self, *args, **kwargs):
+        "Checking if boxes_flow is within the range of -1.0 and 1.0"
 
-        self._validate()
-        return
-
-    def _validate(self):
-        if self.boxes_flow is not None:
-            boxes_flow_err_msg = ("LAParam boxes_flow should be None, or a "
-                                  "number between -1 and +1")
-            if not (isinstance(self.boxes_flow, int) or
-                    isinstance(self.boxes_flow, float)):
-                raise TypeError(boxes_flow_err_msg)
-            if not -1 <= self.boxes_flow <= 1:
-                raise ValueError(boxes_flow_err_msg)
-
-    def __repr__(self):
-        return '<LAParams: char_margin=%.1f, line_margin=%.1f, ' \
-               'word_margin=%.1f all_texts=%r>' % \
-               (self.char_margin, self.line_margin, self.word_margin,
-                self.all_texts)
+        boxes_flow_err_msg = ("LAParams boxes_flow should be None, or a "
+                              "number between -1 and +1")
+        _LAParamsObj = super().__new__(self, *args, **kwargs)
+        if not -1 <= _LAParamsObj.boxes_flow <= 1:
+            raise ValueError(boxes_flow_err_msg())
+        return _LAParams
 
 
 class LTItem:
