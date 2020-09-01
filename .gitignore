@@ -18,3 +18,5 @@ tests/*.txt
 .tox/
 Pipfile
 Pipfile.lock
+
+/pdfminer/working*.py
