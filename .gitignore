@@ -19,4 +19,4 @@ tests/*.txt
 Pipfile
 Pipfile.lock
 
-/pdfminer/working*.py
+pdfminer/working*.py
