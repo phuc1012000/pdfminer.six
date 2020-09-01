@@ -1,7 +1,6 @@
 import heapq
 import logging
 from typing import NamedTuple
-from numbers import Real
 
 from .utils import INF
 from .utils import Plane
@@ -13,22 +12,6 @@ from .utils import matrix2str
 from .utils import uniq
 
 logger = logging.getLogger(__name__)
-
-
-class IndexAssigner:
-
-    def __init__(self, index=0):
-        self.index = index
-        return
-
-    def run(self, obj):
-        if isinstance(obj, LTTextBox):
-            obj.index = self.index
-            self.index += 1
-        elif isinstance(obj, LTTextGroup):
-            for x in obj:
-                self.run(x)
-        return
 
 
 class _LAParams(NamedTuple):
@@ -69,15 +52,31 @@ class LAParams(_LAParams):
         figures.
     """
 
-    def __new__(self, *args, **kwargs):
+    def __new__(self, *args, **kwargs) -> object:
         "Checking if boxes_flow is within the range of -1.0 and 1.0"
 
         boxes_flow_err_msg = ("LAParams boxes_flow should be None, or a "
                               "number between -1 and +1")
         _LAParamsObj = super().__new__(self, *args, **kwargs)
         if not -1 <= _LAParamsObj.boxes_flow <= 1:
-            raise ValueError(boxes_flow_err_msg())
-        return _LAParams
+            raise ValueError(boxes_flow_err_msg)
+        return _LAParamsObj
+
+
+class IndexAssigner:
+
+    def __init__(self, index=0):
+        self.index = index
+        return
+
+    def run(self, obj):
+        if isinstance(obj, LTTextBox):
+            obj.index = self.index
+            self.index += 1
+        elif isinstance(obj, LTTextGroup):
+            for x in obj:
+                self.run(x)
+        return
 
 
 class LTItem:
